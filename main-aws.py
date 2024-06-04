@@ -29,6 +29,12 @@ userAgents = [
 "Mozilla/5.0 (Linux; U; Linux x86_64; en-US) Gecko/20100101 Firefox/54.7"
 ]
 
+chromeDivs = [
+    "MjjYud",
+    "hlcw0c",
+    "ULSxyf"
+]
+
 testUser = [
 
 ]
@@ -43,28 +49,42 @@ def saveToExcel():
     wb = openpyxl.Workbook()
     ws = wb.active
     for tuples in toSave:
-        ws.append([tuples[0], tuples[1], tuples[2]])
+        ws.append([tuples[0], tuples[1], tuples[2], tuples[3]])
     wb.save("trademark_usage.xlsx")
 
 def executeSearch(fname, lname, abbr, cert, sesh1):
     headers = {
         "User-Agent": random.choice(userAgents)
     }
-    time.sleep(random.randint(0,3))
+    time.sleep(random.randint(1,5))
     status = 0
+    retries = 0
     while status != 200:
         try: 
-            response2 = sesh1.get(f'{baseURL}{fname}+{lname}+{cert}', headers=headers)
+            time.sleep(random.randint(0,3))
+            response2 = sesh1.get(f'{baseURL}{fname}+{lname}+{cert}+{abbr}', headers=headers)
             status = response2.status_code
             print(status)
         except Exception as e:
             print(e)
             return False
-    print(response2.status_code)
     response2 = str(bs((response2.content), "html.parser"))
-    match = re.search((fr"(?i)(?:{fname}\s*?.{{0,11}}?\s*?{lname}[\s\S]{{0,15}}?{abbr})"), response2)
+    match = re.search((fr"(?i)(?:{fname}\s*?.{{0,15}}?\s*?{lname}[\s\S]{{0,15}}?{abbr})"), response2)
     if (match):
-        toSave.append([fname, lname, match.group()])
+        closest = 9999999999999
+        try: 
+            for tag in re.finditer(r'href=\"[\s\S]{100}', response2):
+                b = match.start()
+                c = (tag.start()) 
+                a = b - c
+                if a < closest and a > 0:
+                    closest = a
+                    href = tag
+                elif a <= 0:
+                    break
+        except Exception as e:
+            print(e)
+        toSave.append([fname, lname, match.group(), href.group()])
         return True
     else:
         return False
@@ -76,22 +96,16 @@ def main():
     sesh1 = req.Session()
     sesh1.mount("https://www.google.com/", gateway)
     for identity in arr1:
-        if (count <= 50):
-            if (count % 150 == 0):
-                print("Sleeping")
-                time.sleep(random.randint(15,30))
-            count+= 1
-            print(identity)
-            returner = executeSearch(identity[0], identity[1], "CPM", "Certified Property Manager", sesh1)
-            
-          #  if not returner:
-         #       returner = executeSearch(identity[0], identity[1], "ARM", "Accredited Residential Manager")
-          #  if not returner:
-          #      returner = executeSearch(identity[0], identity[1], "ACoM", "Accredited Commercial Manager")
-            print(count, returner)
-        else:
-            saveToExcel()
-            break
+        if (count % 75 == 0):
+            print("Sleeping")
+            time.sleep(random.randint(25,35))
+        if (count % 175 == 0):
+            time.sleep(random.randint(50,70))
+        count+= 1
+        print(identity)
+        returner = executeSearch(identity[0], identity[1], "CPM", "Certified Property Manager", sesh1)
+        print(count, returner)
+    saveToExcel()
     gateway.shutdown()
             
 

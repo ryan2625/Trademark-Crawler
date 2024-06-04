@@ -62,7 +62,7 @@ def executeSearch(fname, lname, abbr, cert):
 def main():
     count=0
     for identity in arr1:
-        if (count <= 125):
+        if (count <= 1):
             count+= 1
             print(identity)
             returner = executeSearch(identity[0], identity[1], "CPM", "Certified Property Manager")
