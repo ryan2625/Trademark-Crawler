@@ -22,16 +22,16 @@ def populateArr():
     for row in range(1, df1.max_row):
         print(row)
         if "CPM" in df1[row][3].value:
-            cpm.append((df1[row][6].value, df1[row][7].value))
+            cpm.append((df1[row][6].value, df1[row][7].value, df1[row][2].value, df1[row][5].value, df1[row][9].value, df1[row][10].value, df1[row][11].value, df1[row][12].value))
     
         elif "ARM" in df1[row][3].value:
-            arm.append((df1[row][6].value, df1[row][7].value))
+            arm.append((df1[row][6].value, df1[row][7].value, df1[row][2].value, df1[row][5].value, df1[row][9].value, df1[row][10].value, df1[row][11].value, df1[row][12].value))
     
         elif "ACoM" in df1[row][3].value:
-            acom.append((df1[row][6].value, df1[row][7].value))
+            acom.append((df1[row][6].value, df1[row][7].value, df1[row][2].value, df1[row][5].value, df1[row][9].value, df1[row][10].value, df1[row][11].value, df1[row][12].value))
         
         else:
-            other.append((df1[row][6].value, df1[row][7].value))
+            other.append((df1[row][6].value, df1[row][7].value, df1[row][2].value, df1[row][5].value, df1[row][9].value, df1[row][10].value, df1[row][11].value, df1[row][12].value))
             
 
     with open("CPM", "w") as file:

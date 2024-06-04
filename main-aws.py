@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup as bs
 import requests as req
 import openpyxl
 import random
-from CPMy import arr1  
+from CPMy import arr
 from requests_ip_rotator import ApiGateway
 
 userAgents = [
@@ -49,10 +49,10 @@ def saveToExcel():
     wb = openpyxl.Workbook()
     ws = wb.active
     for tuples in toSave:
-        ws.append([tuples[0], tuples[1], tuples[2], tuples[3]])
+        ws.append([tuples[0], tuples[1], tuples[2], tuples[3], tuples[4], tuples[5], tuples[6], tuples[7], tuples[8], tuples[9]])
     wb.save("trademark_usage.xlsx")
 
-def executeSearch(fname, lname, abbr, cert, sesh1):
+def executeSearch(fname, lname, abbr, cert, sesh1, ide, date, email, emaily, phone, phoney):
     headers = {
         "User-Agent": random.choice(userAgents)
     }
@@ -69,11 +69,11 @@ def executeSearch(fname, lname, abbr, cert, sesh1):
             print(e)
             return False
     response2 = str(bs((response2.content), "html.parser"))
-    match = re.search((fr"(?i)(?:{fname}\s*?.{{0,15}}?\s*?{lname}[\s\S]{{0,15}}?{abbr})"), response2)
+    match = re.search((fr"(?i)(?:{fname}\s*?.{{0,20}}?\s*?{lname}[\s\S]{{0,20}}?{abbr})"), response2)
     if (match):
         closest = 9999999999999
         try: 
-            for tag in re.finditer(r'href=\"[\s\S]{100}', response2):
+            for tag in re.finditer(r'href=\"[\s\S]{110}', response2):
                 b = match.start()
                 c = (tag.start()) 
                 a = b - c
@@ -84,7 +84,7 @@ def executeSearch(fname, lname, abbr, cert, sesh1):
                     break
         except Exception as e:
             print(e)
-        toSave.append([fname, lname, match.group(), href.group()])
+        toSave.append([fname, lname, match.group(), href.group(), ide, date, email, emaily, phone, phoney])
         return True
     else:
         return False
@@ -95,19 +95,21 @@ def main():
     gateway.start()
     sesh1 = req.Session()
     sesh1.mount("https://www.google.com/", gateway)
-    for identity in arr1:
+    for identity in arr:
         if (count % 75 == 0):
             print("Sleeping")
             time.sleep(random.randint(25,35))
         if (count % 175 == 0):
             print("Sleeping")
             time.sleep(random.randint(50,70))
-        if (count % 850 == 0):
+        if (count % 500 == 0):
+            saveToExcel()
+        if (count == 750):
             print("Sleeping")
             time.sleep(random.randint(500,600))
         count+= 1
         print(identity)
-        returner = executeSearch(identity[0], identity[1], "CPM", "Certified Property Manager", sesh1)
+        returner = executeSearch(identity[0], identity[1], "CPM", "Certified Property Manager", sesh1, identity[2], identity[3], identity[4], identity[5], identity[6], identity[7])
         print(count, returner)
     saveToExcel()
     gateway.shutdown()
