@@ -61,7 +61,7 @@ def executeSearch(fname, lname, abbr, cert, sesh1):
     retries = 0
     while status != 200:
         try: 
-            time.sleep(random.randint(0,3))
+            time.sleep(random.randint(1,3))
             response2 = sesh1.get(f'{baseURL}{fname}+{lname}+{cert}+{abbr}', headers=headers)
             status = response2.status_code
             print(status)
@@ -100,7 +100,11 @@ def main():
             print("Sleeping")
             time.sleep(random.randint(25,35))
         if (count % 175 == 0):
+            print("Sleeping")
             time.sleep(random.randint(50,70))
+        if (count % 850 == 0):
+            print("Sleeping")
+            time.sleep(random.randint(500,600))
         count+= 1
         print(identity)
         returner = executeSearch(identity[0], identity[1], "CPM", "Certified Property Manager", sesh1)
