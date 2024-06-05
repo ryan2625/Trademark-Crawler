@@ -7,6 +7,7 @@ import random
 from CPMy import arr
 from requests_ip_rotator import ApiGateway
 
+# Random valid user agents to avoid detection
 userAgents = [
 "Mozilla/5.0 (iPod; CPU iPod OS 10_3_7; like Mac OS X) AppleWebKit/600.50 (KHTML, like Gecko) Chrome/51.0.1306.201 Mobile Safari/536.4",
 "Mozilla/5.0 (Linux; U; Android 7.0; GT-I9200 Build/KTU84P) AppleWebKit/537.38 (KHTML, like Gecko) Chrome/51.0.1166.359 Mobile Safari/603.0",
@@ -29,22 +30,15 @@ userAgents = [
 "Mozilla/5.0 (Linux; U; Linux x86_64; en-US) Gecko/20100101 Firefox/54.7"
 ]
 
-chromeDivs = [
-    "MjjYud",
-    "hlcw0c",
-    "ULSxyf"
-]
-
-testUser = [
-
-]
-
+# Array of users who return positive for the regex search
 toSave = [
     
 ]
 
+# Append dynamic search for each user to base URL
 baseURL = "https://google.com/search?q="
 
+# Saves result to URL
 def saveToExcel():
     wb = openpyxl.Workbook()
     ws = wb.active
@@ -52,7 +46,10 @@ def saveToExcel():
         ws.append([tuples[0], tuples[1], tuples[2], tuples[3], tuples[4], tuples[5], tuples[6], tuples[7], tuples[8], tuples[9]])
     wb.save("trademark_usage.xlsx")
 
+# Make a get request to google's SERP using a member's name and designation,
+# then look for usage of IREM's trademark.
 def executeSearch(fname, lname, abbr, cert, sesh1, ide, date, email, emaily, phone, phoney):
+    # Pick random user agent and set in header
     headers = {
         "User-Agent": random.choice(userAgents)
     }
@@ -76,6 +73,10 @@ def executeSearch(fname, lname, abbr, cert, sesh1, ide, date, email, emaily, pho
     if (match):
         closest = 9999999999999
         try: 
+            # Code to match the string we found in re.search to the link where
+            # the string lives. Found by taking position of the string and 
+            # backtracking to match it with the closest prior anchor tag. This works
+            # because the anchor tag will always appear right before the string match.
             for tag in re.finditer(r'href=\"[\s\S]{110}', response2):
                 b = match.start()
                 c = (tag.start()) 
@@ -92,6 +93,8 @@ def executeSearch(fname, lname, abbr, cert, sesh1, ide, date, email, emaily, pho
     else:
         return False
 
+# Initialize gateway to rotate IPs from AWS proxies and mount to requests.Session object.
+# Random delays implemented to not get our bot detected.
 def main():
     count=0
     gateway = ApiGateway("https://www.google.com/")
@@ -105,8 +108,6 @@ def main():
         if (count % 175 == 0 and count > 1):
             print("Sleeping")
             time.sleep(random.randint(50,70))
-        if (count % 500 == 0 and count > 1):
-            saveToExcel()
         if (count % 750 == 0 and count > 1):
             print("Sleeping")
             time.sleep(random.randint(700,1000))
