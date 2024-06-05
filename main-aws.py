@@ -56,10 +56,13 @@ def executeSearch(fname, lname, abbr, cert, sesh1, ide, date, email, emaily, pho
     headers = {
         "User-Agent": random.choice(userAgents)
     }
-    time.sleep(random.randint(1,5))
+    time.sleep(random.randint(2,5))
     status = 0
     retries = 0
     while status != 200:
+        retries +=1
+        if (retries % 6 == 0 and retries > 0):
+            time.sleep(random.randint(10,15))
         try: 
             time.sleep(random.randint(1,3))
             response2 = sesh1.get(f'{baseURL}{fname}+{lname}+{cert}+{abbr}', headers=headers)
@@ -69,7 +72,7 @@ def executeSearch(fname, lname, abbr, cert, sesh1, ide, date, email, emaily, pho
             print(e)
             return False
     response2 = str(bs((response2.content), "html.parser"))
-    match = re.search((fr"(?i)(?:{fname}\s*?.{{0,20}}?\s*?{lname}[\s\S]{{0,20}}?{abbr})"), response2)
+    match = re.search((fr"(?i)(?:{fname}\s*?.{{0,14}}?\s*?{lname}[\s\S]{{0,17}}?{abbr})"), response2)
     if (match):
         closest = 9999999999999
         try: 
@@ -84,7 +87,7 @@ def executeSearch(fname, lname, abbr, cert, sesh1, ide, date, email, emaily, pho
                     break
         except Exception as e:
             print(e)
-        toSave.append([fname, lname, match.group(), href.group(), ide, date, email, emaily, phone, phoney])
+        toSave.append([fname, lname, ide, href.group(), match.group(), date, email, emaily, phone, phoney])
         return True
     else:
         return False
@@ -96,24 +99,22 @@ def main():
     sesh1 = req.Session()
     sesh1.mount("https://www.google.com/", gateway)
     for identity in arr:
-        if (count % 75 == 0):
+        if (count % 75 == 0 and count > 1):
             print("Sleeping")
             time.sleep(random.randint(25,35))
-        if (count % 175 == 0):
+        if (count % 175 == 0 and count > 1):
             print("Sleeping")
             time.sleep(random.randint(50,70))
-        if (count % 500 == 0):
+        if (count % 500 == 0 and count > 1):
             saveToExcel()
-        if (count == 750):
+        if (count % 750 == 0 and count > 1):
             print("Sleeping")
-            time.sleep(random.randint(500,600))
+            time.sleep(random.randint(700,1000))
         count+= 1
         print(identity)
         returner = executeSearch(identity[0], identity[1], "CPM", "Certified Property Manager", sesh1, identity[2], identity[3], identity[4], identity[5], identity[6], identity[7])
         print(count, returner)
     saveToExcel()
     gateway.shutdown()
-            
-
 
 main()
